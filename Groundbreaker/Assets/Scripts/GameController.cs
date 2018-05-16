@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+		CurrentGpsPosition = new Helper.LocationData();
 	}
 	
 	// Update is called once per frame

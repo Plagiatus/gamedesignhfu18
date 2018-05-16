@@ -13,6 +13,9 @@ public static class Helper {
         public float HorizontalAccuracy { get; set; }
         public float VerticalAccuracy { get; set; }
 		public string Status { get; set; }	
+
+		public Vector2 OsmTilePosition { get; set; }
+		public Vector2 OsmOnTilePosition { get; set; }
 	}
 
 	public static Vector2 WorldToTilePos(float lat, float lon, int zoom)
