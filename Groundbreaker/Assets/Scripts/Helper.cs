@@ -31,8 +31,8 @@ public static class Helper {
 
     public static Vector3 TileToGamePosition(Vector2 pos)
     {
-        float TileSizeInGame = 10;      //size of a single Quad in the Map Object
-        Vector3 ret = new Vector3(TileSizeInGame / 2 - pos.x * TileSizeInGame, 0, (pos.y * TileSizeInGame) - (TileSizeInGame / 2));
+        
+        Vector3 ret = new Vector3(Config.TileSizeInGame / 2 - pos.x * Config.TileSizeInGame, 0, (pos.y * Config.TileSizeInGame) - (Config.TileSizeInGame / 2));
         return ret;
     }
 

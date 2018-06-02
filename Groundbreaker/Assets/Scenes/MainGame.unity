@@ -405,6 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4ca83aa12868bb4c9c382c81b93949e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CurrentZoom: 17
 --- !u!1 &282840810
 GameObject:
   m_ObjectHideFlags: 0
@@ -508,10 +509,10 @@ RectTransform:
   m_Father: {fileID: 560543086}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.2, y: 43.6}
-  m_SizeDelta: {x: 260.4, y: 31.1}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -0.0000030994, y: -17.02}
+  m_SizeDelta: {x: 267, y: 34.05}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &380818831
 MonoBehaviour:
@@ -534,18 +535,18 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
+    m_MinSize: 2
+    m_MaxSize: 250
     m_Alignment: 1
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: 48.456875, 8.88234823
 --- !u!222 &380818832
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1353,6 +1354,8 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 1840220421}
+  - component: {fileID: 1840220423}
+  - component: {fileID: 1840220422}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -1382,6 +1385,29 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1840220422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1840220420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 532b00d535b574c4cba9b6a4ecb549ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ErrorMaterial: {fileID: 2100000, guid: d624dcfc770080a47b0a7ac9dc87447b, type: 2}
+--- !u!114 &1840220423
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1840220420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7adb8ff0fdcce2b4a882cfaee2d74da4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1867758261
 GameObject:
   m_ObjectHideFlags: 0

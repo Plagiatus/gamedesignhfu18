@@ -11,6 +11,8 @@ public static class Config {
 	public static Vector3 MaxCameraOffset;
 
         public static string MapLoaderBaseUrl = "http://a.tile.openstreetmap.org/";
+        public static float TileSizeInGame = 10;      //size of a single Quad in the Map Object
+        public static string MapCacheFolderName = "MapCache";
 
 
 	static Config()
