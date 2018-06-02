@@ -9,8 +9,16 @@ public class GPSHandler : MonoBehaviour {
 	private GameController GC;
 
 	public Text gpsText;
+	public static GPSHandler Instance {get; set;}
 
-	IEnumerator Start()
+	void Start()
+	{
+		Instance = this;
+		DontDestroyOnLoad(gameObject);
+		StartCoroutine(StartLocationService());
+	}
+
+	IEnumerator StartLocationService()
 	{
 		try 
 		{
@@ -27,15 +35,20 @@ public class GPSHandler : MonoBehaviour {
 		}
 		else
 		{
-			if(Input.location.isEnabledByUser)
+			Debug.Log("Starting GPS search");
+			if(!Input.location.isEnabledByUser)
 			{
-				Input.location.Start();
+				Debug.Log("GPS not enabled");
+				yield break;
 			}
+			
+			Input.location.Start();
 			int maxWait = 20;
 			while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
 			{
 				yield return new WaitForSeconds(1);
 				maxWait--;
+				Debug.Log("Waited " + maxWait);
 			}
 
 			if (maxWait <= 0)
@@ -70,8 +83,12 @@ public class GPSHandler : MonoBehaviour {
             GC.CurrentGpsPosition.Timestamp = Input.location.lastData.timestamp;
 			GC.CurrentGpsPosition.Status = Input.location.status.ToString();
 		}
+		else
+		{
+			GC.CurrentGpsPosition = Config.DebugGpsPosition;
+		}
 
-		Vector2 tilePos = Helper.WorldToTilePos(GC.CurrentGpsPosition.Latitude, GC.CurrentGpsPosition.Longitude, 17);
+		Vector2 tilePos = Helper.WorldToTilePos(GC.CurrentGpsPosition.Latitude, GC.CurrentGpsPosition.Longitude, GC.CurrentZoom);
 		GC.CurrentGpsPosition.OsmTilePosition = new Vector2(Mathf.FloorToInt(tilePos.x), Mathf.FloorToInt(tilePos.y));
 
 		GC.CurrentGpsPosition.OsmOnTilePosition = new Vector2(tilePos.x - GC.CurrentGpsPosition.OsmTilePosition.x, tilePos.y - GC.CurrentGpsPosition.OsmTilePosition.y);

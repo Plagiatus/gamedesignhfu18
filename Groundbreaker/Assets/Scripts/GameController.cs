@@ -5,13 +5,12 @@ using UnityEngine;
 public class GameController : MonoBehaviour {
 
 	public Helper.LocationData CurrentGpsPosition;
+	public int CurrentZoom = 17; 
 
-	// Use this for initialization
 	void Start () {
 		CurrentGpsPosition = new Helper.LocationData();
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 		
 	}

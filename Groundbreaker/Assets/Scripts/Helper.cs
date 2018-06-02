@@ -29,4 +29,11 @@ public static class Helper {
         return p;
     }
 
+    public static Vector3 TileToGamePosition(Vector2 pos)
+    {
+        float TileSizeInGame = 10;      //size of a single Quad in the Map Object
+        Vector3 ret = new Vector3(TileSizeInGame / 2 - pos.x * TileSizeInGame, 0, (pos.y * TileSizeInGame) - (TileSizeInGame / 2));
+        return ret;
+    }
+
 }
