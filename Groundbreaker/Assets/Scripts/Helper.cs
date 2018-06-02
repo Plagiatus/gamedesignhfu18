@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public static class Helper {
@@ -36,6 +37,44 @@ public static class Helper {
         
         Vector3 ret = new Vector3(Config.TileSizeInGame / 2 - pos.x * Config.TileSizeInGame, 0, (pos.y * Config.TileSizeInGame) - (Config.TileSizeInGame / 2));
         return ret;
+    }
+
+    [Serializable]
+    public class CircleOfAction{
+        public Vector2 center { get; set; }
+        public float radius { get; set; }
+        public long id { get; set; }
+        public PointOfAction[] pointsOfAction {get; set;}
+
+    }
+
+    [Serializable]
+    public class PointOfAction {
+        public Vector2 position;
+        public string name;
+        public Attacks attack;
+        public int power;
+
+        override public string ToString()
+        {
+            string ret = "";
+            ret += "(" + name + ", " + position.ToString() + ", " + attack + ", " + power + ")";
+            return ret;
+
+            // return JsonUtility.ToJson(this);
+        }
+    }
+
+    public enum Attacks{
+        None,
+        Wind,
+        Rain,
+        Sandstorm,
+        Frost,
+        Fire,
+        Earthquake,
+        Tsunami,
+        Vulcano
     }
 
 }
