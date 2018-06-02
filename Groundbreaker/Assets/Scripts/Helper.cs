@@ -16,6 +16,8 @@ public static class Helper {
 
 		public Vector2 OsmTilePosition { get; set; }
 		public Vector2 OsmOnTilePosition { get; set; }
+
+        public float HeadingDirection {get; set;}
 	}
 
 	public static Vector2 WorldToTilePos(float lat, float lon, int zoom)

@@ -58,7 +58,7 @@ public class MapTileLoader : MonoBehaviour {
 
 	IEnumerator LoadSingleTile(GameObject child, int _x=0, int _y=0){
 		//check if map is already in cache
-		if(File.Exists(Application.persistentDataPath + "/" + Config.MapCacheFolderName + "/" + GC.CurrentZoom + "/" + (GC.CurrentGpsPosition.OsmTilePosition.x +_x) + "_" + (GC.CurrentGpsPosition.OsmTilePosition.y +_y) + ".png"))
+		if(TileExistsInCache(_x, _y))
 		{
 			LoadMapFromCache(child, _x, _y);
 		}
@@ -106,6 +106,22 @@ public class MapTileLoader : MonoBehaviour {
 		} catch (IOException ex) {
 			Debug.Log(ex.Message);
 		}
+	}
+
+	bool TileExistsInCache(int _x, int _y){
+		bool ret = File.Exists(Application.persistentDataPath + "/" + Config.MapCacheFolderName + "/" + GC.CurrentZoom + "/" + (GC.CurrentGpsPosition.OsmTilePosition.x +_x) + "_" + (GC.CurrentGpsPosition.OsmTilePosition.y +_y) + ".png");
+		if (ret)
+		{
+			//check if file is too old
+			FileInfo fi = new FileInfo(Application.persistentDataPath + "/" + Config.MapCacheFolderName + "/" + GC.CurrentZoom + "/" + (GC.CurrentGpsPosition.OsmTilePosition.x +_x) + "_" + (GC.CurrentGpsPosition.OsmTilePosition.y +_y) + ".png");
+			System.DateTime renewDate = fi.LastWriteTime.AddDays(1);
+			Debug.Log("Comparison: " + renewDate.CompareTo(System.DateTime.Now));
+			if(renewDate.CompareTo(System.DateTime.Now) < 0)
+			{
+				ret = false;
+			}
+		}
+		return ret;
 	}
 
 	void LoadMapFromCache(GameObject child, int _x, int _y){

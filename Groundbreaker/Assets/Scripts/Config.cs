@@ -25,6 +25,7 @@ public static class Config {
                 DebugGpsPosition.VerticalAccuracy = 10;
                 DebugGpsPosition.Timestamp = 5;
                 DebugGpsPosition.Status = "Debugging";
+                DebugGpsPosition.HeadingDirection = 0;
 
                 MaxCameraOffset = new Vector3(1f, 1f, 0.5f);
 

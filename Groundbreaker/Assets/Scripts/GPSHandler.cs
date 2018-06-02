@@ -82,6 +82,7 @@ public class GPSHandler : MonoBehaviour {
             GC.CurrentGpsPosition.VerticalAccuracy = Input.location.lastData.verticalAccuracy;
             GC.CurrentGpsPosition.Timestamp = Input.location.lastData.timestamp;
 			GC.CurrentGpsPosition.Status = Input.location.status.ToString();
+			GC.CurrentGpsPosition.HeadingDirection = Input.compass.trueHeading;
 		}
 		else
 		{
