@@ -26,8 +26,10 @@ public class MapTileLoader : MonoBehaviour {
 		for (int i = 0; i < this.transform.childCount; i++)
 		{
 			GameObject child = this.transform.GetChild(i).gameObject;
-			//save their position for reference later
-			children[i] = new QuadPosRelationship() {x=Mathf.FloorToInt(child.transform.position.x / Config.TileSizeInGame), y= Mathf.FloorToInt(child.transform.position.z / Config.TileSizeInGame) * -1, quad = child};
+			if(child.tag == "MapTile"){
+				//save their position for reference later
+				children[i] = new QuadPosRelationship() {x=Mathf.FloorToInt(child.transform.position.x / Config.TileSizeInGame), y= Mathf.FloorToInt(child.transform.position.z / Config.TileSizeInGame) * -1, quad = child};
+			}
 		}
 
 		try 
@@ -40,6 +42,9 @@ public class MapTileLoader : MonoBehaviour {
 	}
 
 	void Update () {
+		if (GC == null){
+			GC = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
+		}
 		//when moving onto a new tile, reload all tiles. should be called on the first frame as well.
 		if (previousTileX != GC.CurrentGpsPosition.OsmTilePosition.x || previousTileY != GC.CurrentGpsPosition.OsmTilePosition.y)
 		{
@@ -115,7 +120,7 @@ public class MapTileLoader : MonoBehaviour {
 			//check if file is too old
 			FileInfo fi = new FileInfo(Application.persistentDataPath + "/" + Config.MapCacheFolderName + "/" + GC.CurrentZoom + "/" + (GC.CurrentGpsPosition.OsmTilePosition.x +_x) + "_" + (GC.CurrentGpsPosition.OsmTilePosition.y +_y) + ".png");
 			System.DateTime renewDate = fi.LastWriteTime.AddDays(1);
-			Debug.Log("Comparison: " + renewDate.CompareTo(System.DateTime.Now));
+			// Debug.Log("Comparison: " + renewDate.CompareTo(System.DateTime.Now));
 			if(renewDate.CompareTo(System.DateTime.Now) < 0)
 			{
 				ret = false;

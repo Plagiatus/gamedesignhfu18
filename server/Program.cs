@@ -136,7 +136,7 @@ namespace server
             CircleOfAction fuwa = new CircleOfAction();
             fuwa.center = new Vector2(48.05078984227376f,8.205344080924988f);
             fuwa.id = 0;
-            fuwa.radius = 1.5f;
+            fuwa.radius = 1500f;
             fuwa.name = "Furtwangen";
 
             PointOfAction poa1 = new PointOfAction{attack = Attacks.None, name = "A Bau", power = 0, position = new Vector2(48.051491968664195f,8.207626640796661f)};
@@ -148,7 +148,7 @@ namespace server
             CircleOfAction voeba = new CircleOfAction();
             voeba.center = new Vector2(48.04483680295032f,8.305728435516357f);
             voeba.id = 1;
-            voeba.radius = 1.0f;
+            voeba.radius = 1000f;
             voeba.name = "Vöhrenbach";
 
             PointOfAction poa4 = new PointOfAction{attack = Attacks.None, name = "Ochsen", power = 0, position = new Vector2(48.04599155977438f,8.303295676369771f)};

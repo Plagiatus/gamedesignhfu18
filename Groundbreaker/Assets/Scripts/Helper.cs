@@ -39,6 +39,15 @@ public static class Helper {
         return ret;
     }
 
+    public static Vector3 LocationToGamePosition(Vector2 location, GameController GC){
+        Vector2 gamePos = WorldToTilePos(location.x, location.y, GC.CurrentZoom);
+        // Debug.Log("center: " + location + "gamePos: " + gamePos + ", OsmTilePos: " + (GC.CurrentGpsPosition.OsmTilePosition + new Vector2(0.5f, 0.5f)));
+        Vector2 difference = gamePos - (GC.CurrentGpsPosition.OsmTilePosition + new Vector2(0.5f, 0.5f) );
+        
+        Vector3 newPos = new Vector3(difference.x * Config.TileSizeInGame, 0.1f, difference.y * Config.TileSizeInGame * -1);
+        return newPos;
+    }
+
     [Serializable]
     public class CircleOfAction{
         public string name;

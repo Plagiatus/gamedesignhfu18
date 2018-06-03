@@ -12,6 +12,7 @@ public static class Config {
 
         public static string MapLoaderBaseUrl = "http://a.tile.openstreetmap.org/";
         public static float TileSizeInGame = 10;      //size of a single Quad in the Map Object
+        public static float TileSizeInRL = 150f;
         public static string MapCacheFolderName = "MapCache";
         public static string ServerIP = "192.168.0.102";
         public static int ServerPort = 9050;
@@ -21,7 +22,7 @@ public static class Config {
 	{
 		DebugGpsPosition = new Helper.LocationData();
                 DebugGpsPosition.Latitude = 48.05080f;
-                DebugGpsPosition.Longitude = 8.20934f;
+                DebugGpsPosition.Longitude = 8.20834f;
                 DebugGpsPosition.Altitude = 800;
                 DebugGpsPosition.HorizontalAccuracy = 10;
                 DebugGpsPosition.VerticalAccuracy = 10;
