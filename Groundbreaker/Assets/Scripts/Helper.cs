@@ -77,4 +77,14 @@ public static class Helper {
         Vulcano
     }
 
+    public enum ServerRequestType{
+        SendPosition,
+        RecievePositions,
+        RecieveCircle
+    }
+
+    public class ServerRequest{
+        public ServerRequestType request;
+    }
+
 }
