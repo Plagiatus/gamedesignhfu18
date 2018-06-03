@@ -12,6 +12,7 @@ using System.Collections;
 	
 		public Transform Cube;
 		private GameController GC;
+		private IDictionary playerPositions;
 
 		void Start()
 		{
@@ -25,11 +26,19 @@ using System.Collections;
 			GC.CurrentGpsPosition = Config.DebugGpsPosition;
 
 			Helper.ServerRequest sendPos = new Helper.ServerRequest() { request = Helper.ServerRequestType.SendPosition };
+			StartCoroutine(SendRequest<Vector2, string>(sendPos, new Vector2(UnityEngine.Random.value * 100, UnityEngine.Random.value * 100)));
+
 			Helper.ServerRequest getPos = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecievePositions };
+			StartCoroutine(SendRequest<string, Dictionary<string, Vector2>>(getPos, null, true, (returnValue) => {
+				foreach(KeyValuePair<string, Vector2> player in returnValue){
+					Debug.Log("Player position: " + player.Value);
+				}
+			}));
+
 			Helper.ServerRequest getCirc = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecieveCircle };
-			// StartCoroutine(SendRequest<Vector2>(sendPos, new Vector2(UnityEngine.Random.value * 100, UnityEngine.Random.value * 100), true));
-			// StartCoroutine(SendRequest<string>(getPos, null, true));
-			StartCoroutine(SendRequest<Vector2>(getCirc, new Vector2(48.044f, 8.305f), true));
+			StartCoroutine(SendRequest<Vector2, Helper.CircleOfAction>(getCirc, new Vector2(48.044f, 8.305f), true, (returnValue) =>{
+					Debug.Log(returnValue.name);
+			}));
 
 			/*
 			Helper.PointOfAction poa = new Helper.PointOfAction() {name = "Furtwangen", attack = Helper.Attacks.None, position = new Vector2(GC.CurrentGpsPosition.Latitude, GC.CurrentGpsPosition.Longitude), power = 0};
@@ -65,7 +74,7 @@ using System.Collections;
 			*/
 		}
 
-		public IEnumerator SendRequest<T>(Helper.ServerRequest request, T data, bool expectAnswer = false){
+		public IEnumerator SendRequest<TRequest, TAnswer>(Helper.ServerRequest request, TRequest data, bool expectAnswer = false, System.Action<TAnswer> answer = null){
 			byte[] toSend = new byte[1024];
 			IPEndPoint ipep = new IPEndPoint(IPAddress.Parse(Config.ServerIP),Config.ServerPort);
 			Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -88,7 +97,10 @@ using System.Collections;
 				EndPoint tmpRemote = (EndPoint)sender;
 	
 				int recv = server.ReceiveFrom(toRecieve, ref tmpRemote);
-				Debug.Log("Answer: " + JsonUtility.FromJson<Helper.CircleOfAction>(Encoding.ASCII.GetString(toRecieve, 0, recv)).name);
+				Debug.Log("Answer: " + Encoding.ASCII.GetString(toRecieve, 0, recv));
+				if(answer != null){
+					answer(JsonUtility.FromJson<TAnswer>(Encoding.ASCII.GetString(toRecieve, 0, recv)));
+				}
 			}
 			server.Close();
 			yield return null;

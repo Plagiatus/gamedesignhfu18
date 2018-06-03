@@ -19,7 +19,6 @@ namespace server
             IDictionary<string, Vector2> positions = new Dictionary<string, Vector2>();
             // CircleOfAction[]  circles = LoadCircles();
             // Console.WriteLine(JsonConvert.SerializeObject(circles));
-            Console.WriteLine(calculateDistanceinKm(new Vector2(38.8f, -77.1f), new Vector2(51.5f, 0)));
 
 
             /*
