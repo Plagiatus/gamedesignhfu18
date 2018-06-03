@@ -13,6 +13,8 @@ public static class Config {
         public static string MapLoaderBaseUrl = "http://a.tile.openstreetmap.org/";
         public static float TileSizeInGame = 10;      //size of a single Quad in the Map Object
         public static string MapCacheFolderName = "MapCache";
+        public static string ServerIP = "192.168.0.102";
+        public static int ServerPort = 9050;
 
 
 	static Config()
