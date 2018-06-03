@@ -41,17 +41,18 @@ public static class Helper {
 
     [Serializable]
     public class CircleOfAction{
-        public Vector2 center { get; set; }
-        public float radius { get; set; }
-        public long id { get; set; }
-        public PointOfAction[] pointsOfAction {get; set;}
+        public string name;
+        public Vector2 center;
+        public float radius;
+        public long id;
+        public PointOfAction[] pointsOfAction;
 
     }
 
     [Serializable]
     public class PointOfAction {
-        public Vector2 position;
         public string name;
+        public Vector2 position;
         public Attacks attack;
         public int power;
 
