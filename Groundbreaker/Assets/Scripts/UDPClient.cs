@@ -28,17 +28,20 @@ using System.Collections;
 			Helper.ServerRequest sendPos = new Helper.ServerRequest() { request = Helper.ServerRequestType.SendPosition };
 			StartCoroutine(SendRequest<Vector2, string>(sendPos, new Vector2(UnityEngine.Random.value * 100, UnityEngine.Random.value * 100)));
 
-			Helper.ServerRequest getPos = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecievePositions };
-			StartCoroutine(SendRequest<string, Dictionary<string, Vector2>>(getPos, null, true, (returnValue) => {
-				foreach(KeyValuePair<string, Vector2> player in returnValue){
-					Debug.Log("Player position: " + player.Value);
-				}
-			}));
+			 Helper.ServerRequest getPos = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecievePositions };
+			 StartCoroutine(SendRequest<string, Dictionary<string, Vector2>>(getPos, null, true, (returnValue) => {
+			 	foreach(KeyValuePair<string, Vector2> player in returnValue){
+			 		// Debug.Log("Player position: " + player.Value);
+			 	}
+			 	GC.playerPositions = returnValue;
+			 }));
 
-			Helper.ServerRequest getCirc = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecieveCircle };
-			StartCoroutine(SendRequest<Vector2, Helper.CircleOfAction>(getCirc, new Vector2(48.044f, 8.305f), true, (returnValue) =>{
-					Debug.Log(returnValue.name);
-			}));
+			//TODO: MAKE SURE THAT THE GAME DOESN'T CRASH IF SERVER CONNECTION CAN'T BE ESTABLISHED!
+			//Helper.ServerRequest getCirc = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecieveCircle };
+			//StartCoroutine(SendRequest<Vector2, Helper.CircleOfAction>(getCirc, new Vector3(GC.CurrentGpsPosition.Latitude, GC.CurrentGpsPosition.Longitude), true, (returnValue) =>{
+			//	// Debug.Log(returnValue.pointsOfAction[0]);
+			//	GC.circle = returnValue;
+			//}));
 
 			/*
 			Helper.PointOfAction poa = new Helper.PointOfAction() {name = "Furtwangen", attack = Helper.Attacks.None, position = new Vector2(GC.CurrentGpsPosition.Latitude, GC.CurrentGpsPosition.Longitude), power = 0};
@@ -99,7 +102,7 @@ using System.Collections;
 				int recv = server.ReceiveFrom(toRecieve, ref tmpRemote);
 				Debug.Log("Answer: " + Encoding.ASCII.GetString(toRecieve, 0, recv));
 				if(answer != null){
-					answer(JsonUtility.FromJson<TAnswer>(Encoding.ASCII.GetString(toRecieve, 0, recv)));
+					answer(JsonUtility.FromJson<TAnswer>(Encoding.ASCII.GetString(toRecieve, 0, recv).Replace("\"X\"", "\"x\"").Replace("\"Y\"", "\"y\"")));
 				}
 			}
 			server.Close();

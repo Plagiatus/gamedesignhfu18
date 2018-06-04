@@ -10,7 +10,7 @@ public class PlayerRotation : MonoBehaviour {
 		try 
 		{
 			GC = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
-			Debug.Log(GC);
+			// Debug.Log(GC);
 		} catch
 		{
 			throw;

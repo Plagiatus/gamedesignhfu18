@@ -14,11 +14,29 @@ namespace server
     public class UdpServer
     {
         static CircleOfAction[] circles = LoadCircles();
+        static string playersJsonPath = "players.json";
+        static string circlesJsonPath = "circles.json";
+        static int nextFreeID = -1;
         public static void Main()
         {
-            IDictionary<string, Vector2> positions = new Dictionary<string, Vector2>();
-            // CircleOfAction[]  circles = LoadCircles();
-            // Console.WriteLine(JsonConvert.SerializeObject(circles));
+            //load different data
+            List<PlayerLocation> playerLocations = new List<PlayerLocation>();
+            CircleOfAction[]  circles = LoadCircles();
+            List<Player> players = LoadPlayers();
+            //get latest ID
+            foreach(Player p in players){
+                if(nextFreeID < p.id){
+                    nextFreeID = p.id;
+                }
+            }
+            nextFreeID++;
+
+            //start the coroutine that saves the current player list to the file structure.
+
+            // Player p1 = new Player {id = 0, name = "Lukas", password = "123456", level = 15, energy = 100, xp = 20};
+            // Player p2 = new Player {id = 1, name = "Marlene", password = "987654", level = 9, energy = 90, xp = 8};
+            // players.Add(p1);
+            // players.Add(p2);
 
 
             /*
@@ -29,6 +47,7 @@ namespace server
             // Console.WriteLine($"Deserialized: Name={poa2.name}, Attack={poa2.attack}, Position={poa2.position}");
             // Console.WriteLine();
     	    */
+
             int recv;
             byte[] data = new byte[1024];
             IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
@@ -62,9 +81,19 @@ namespace server
                     switch (sr.request)
                     {
                         case (ServerRequestType.SendPosition):
-                            Vector2 newPos = JsonConvert.DeserializeObject<Vector2>(splitStrings[1]);
-                            positions[Remote.ToString().Split(":")[0]] = newPos;
-                            Console.WriteLine("SendPosition from " + Remote.ToString().Split(":")[0] + ": " + newPos);
+                            PlayerLocation newLocation = JsonConvert.DeserializeObject<PlayerLocation>(splitStrings[1]);
+                            bool found = false;
+                            for (int i = 0; i < playerLocations.Count; i++){
+                                if(playerLocations[i].id == newLocation.id){
+                                    playerLocations[i] = newLocation;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if(!found){
+                                playerLocations.Add(newLocation);
+                            }
+                            Console.WriteLine("SendPosition from " + Remote.ToString().Split(":")[0] + ": " + newLocation);
                             newsock.SendTo(Encoding.ASCII.GetBytes("ACK"), SocketFlags.None, Remote);
                         break;    
 
@@ -74,6 +103,73 @@ namespace server
                             newsock.SendTo(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(getClosestCircle(playerPos))), SocketFlags.None, Remote);
                         break;
 
+                        case (ServerRequestType.RecievePositions):
+                            Console.WriteLine("RecievePositions from " + Remote.ToString().Split(":")[0]);
+                            //get rid of the old locations
+                            foreach(PlayerLocation location in playerLocations){
+                                if(location.timestamp.AddMinutes(5) < DateTime.Now)
+                                {
+                                    playerLocations.Remove(location);
+                                }
+                            }
+                            //get rid of the locations too far away
+                            List<PlayerLocation> locationsToSend = playerLocations;
+                            foreach(PlayerLocation location in locationsToSend){
+                                if(calculateDistanceinKm(location.position, JsonConvert.DeserializeObject<Vector2>(splitStrings[1])) > 5){
+                                    locationsToSend.Remove(location);
+                                }
+                            }
+                            newsock.SendTo(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(locationsToSend)), SocketFlags.None, Remote);
+                        break;
+
+                        case (ServerRequestType.LogIn):
+                            LoginCredentials login = JsonConvert.DeserializeObject<LoginCredentials>(splitStrings[1]);
+                            Console.Write("Log attempt for " + login.name + " with pw: " + login.password);
+                            bool foundLogin = false;
+                            foreach(Player p in players){
+                                if (p.name == login.name && p.password == login.password){
+                                    newsock.SendTo(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(p)), SocketFlags.None, Remote);
+                                    foundLogin = true;
+                                    Console.WriteLine(" - success");
+                                    break;
+                                }
+                            }
+                            if(!foundLogin){
+                                newsock.SendTo(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(null)), SocketFlags.None, Remote);
+                                Console.WriteLine(" - failed");
+                            }
+                        break;
+
+                        case (ServerRequestType.NewPlayer):
+                            LoginCredentials newLogin = JsonConvert.DeserializeObject<LoginCredentials>(splitStrings[1]);
+                            bool nameExists = false;
+                            foreach(Player p in players){
+                                if(p.name == newLogin.name){
+                                    nameExists = true;
+                                    newsock.SendTo(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject("Name already exists. Please choose a different one.")), SocketFlags.None, Remote);
+                                    break;
+                                }
+                            }
+                            if(!nameExists){
+                                Player newPlayer = new Player(newLogin.name, newLogin.password, nextFreeID);
+                                newsock.SendTo(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(newPlayer)), SocketFlags.None, Remote);
+                                players.Add(newPlayer);
+                                SavePlayers(players);
+                            }
+                        break;
+
+                        case(ServerRequestType.UpdatePlayer):
+                            Player updatedPlayer = JsonConvert.DeserializeObject<Player>(splitStrings[1]);
+                            foreach(Player p in players){
+                                if(p.id == updatedPlayer.id){
+                                    players.Remove(p);
+                                    players.Add(updatedPlayer);
+                                    SavePlayers(players);
+                                    break;
+                                }
+                            }
+                            newsock.SendTo(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject("Name already exists. Please choose a different one.")), SocketFlags.None, Remote);
+                        break;
                         default:
                         break;
                     }
@@ -82,15 +178,12 @@ namespace server
                     ServerRequest sr = JsonConvert.DeserializeObject<ServerRequest>(splitStrings[0]);
                     switch (sr.request)
                     {
-                        case (ServerRequestType.RecievePositions):
-                            Console.WriteLine("RecievePositions from " + Remote.ToString().Split(":")[0]);
-                            newsock.SendTo(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(positions)), SocketFlags.None, Remote);
-                        break;
+                        
                         default:
                         break;
                     }
                 }
-                Console.WriteLine(Encoding.ASCII.GetString(data, 0, recv));
+                // Console.WriteLine(Encoding.ASCII.GetString(data, 0, recv));
 
                 // newsock.SendTo(data, recv, SocketFlags.None, Remote);
             }
@@ -132,11 +225,21 @@ namespace server
         }
         
         public static CircleOfAction[] LoadCircles(){
-            //TODO: Maybe load this from a JSON File or something.
+
+            //load circles from json file
+            string readResult = String.Empty;
+            string writeResult = String.Empty;
+            using (StreamReader sr = new StreamReader(circlesJsonPath)){
+                var json = sr.ReadToEnd();
+                CircleOfAction[] jsonObj = JsonConvert.DeserializeObject<CircleOfAction[]>(json);
+                return jsonObj;
+            }
+
+            /*
             CircleOfAction fuwa = new CircleOfAction();
             fuwa.center = new Vector2(48.05078984227376f,8.205344080924988f);
             fuwa.id = 0;
-            fuwa.radius = 1.5f;
+            fuwa.radius = 1500f;
             fuwa.name = "Furtwangen";
 
             PointOfAction poa1 = new PointOfAction{attack = Attacks.None, name = "A Bau", power = 0, position = new Vector2(48.051491968664195f,8.207626640796661f)};
@@ -148,7 +251,7 @@ namespace server
             CircleOfAction voeba = new CircleOfAction();
             voeba.center = new Vector2(48.04483680295032f,8.305728435516357f);
             voeba.id = 1;
-            voeba.radius = 1.0f;
+            voeba.radius = 1000f;
             voeba.name = "Vöhrenbach";
 
             PointOfAction poa4 = new PointOfAction{attack = Attacks.None, name = "Ochsen", power = 0, position = new Vector2(48.04599155977438f,8.303295676369771f)};
@@ -159,6 +262,23 @@ namespace server
 
             CircleOfAction[] circles = new CircleOfAction[] {fuwa, voeba};
             return circles;
+            */
+        }
+
+        static List<Player> LoadPlayers(){
+            //load players from json file
+            string readResult = String.Empty;
+            string writeResult = String.Empty;
+            using (StreamReader sr = new StreamReader(playersJsonPath)){
+                var json = sr.ReadToEnd();
+                List<Player> jsonObj = JsonConvert.DeserializeObject<List<Player>>(json);
+                return jsonObj;
+            }
+        }
+
+        static void SavePlayers(List<Player> players){
+            string input = JsonConvert.SerializeObject(players);
+            File.WriteAllText(playersJsonPath,input);
         }
     }
 
@@ -205,9 +325,40 @@ namespace server
     public enum ServerRequestType{
         SendPosition,
         RecievePositions,
-        RecieveCircle
+        RecieveCircle,
+        NewPlayer,
+        LogIn,
+        UpdatePlayer
     }
     public struct ServerRequest{
         public ServerRequestType request;
+    }
+
+    public class PlayerLocation{
+        public Vector2 position;
+        public long id;
+        public DateTime timestamp;
+    }
+
+    public class Player{
+        public int id;
+        public string name;
+        public string password;
+        public int level;
+        public int energy;
+        public int xp;
+        public Player(string _name, string _pw, int _id){
+            this.name = _name;
+            this.password = _pw;
+            this.id = _id;
+            this.level = 1;
+            this.energy = 10;
+            this.xp = 0;
+        }
+    }
+
+    public class LoginCredentials{
+        public string name;
+        public string password;
     }
 }
