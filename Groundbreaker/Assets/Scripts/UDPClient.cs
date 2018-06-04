@@ -9,8 +9,6 @@ using System.Collections;
  
 	public class UDPClient : MonoBehaviour
 	{
-	
-		public Transform Cube;
 		private GameController GC;
 		private IDictionary playerPositions;
 
@@ -42,6 +40,24 @@ using System.Collections;
 			//	// Debug.Log(returnValue.pointsOfAction[0]);
 			//	GC.circle = returnValue;
 			//}));
+
+			// Helper.ServerRequest login = new Helper.ServerRequest() {request = Helper.ServerRequestType.LogIn};
+			// StartCoroutine(SendRequest<Helper.LoginCredentials, Helper.Player>(login, new Helper.LoginCredentials(){name = "Lukas", password = "1234567"},true));
+			
+			// Helper.ServerRequest newplayer = new Helper.ServerRequest() {request = Helper.ServerRequestType.NewPlayer};
+			// StartCoroutine(SendRequest<Helper.LoginCredentials, Helper.Player>(newplayer, new Helper.LoginCredentials(){name = "Lars", password = "1234567"},true));
+
+			// Helper.ServerRequest updateplayer = new Helper.ServerRequest() {request = Helper.ServerRequestType.UpdatePlayer};
+			// StartCoroutine(SendRequest<Helper.Player, string>(updateplayer, new Helper.Player("Lars","1234567",2) {xp = 100},true));
+
+			Helper.ServerRequest sendPos = new Helper.ServerRequest() {request = Helper.ServerRequestType.SendPosition};
+			Debug.Log(JsonUtility.ToJson(new Helper.PlayerLocation(){name = "Lars", id = 2, timestamp = DateTime.Now.ToString(), position = new Vector2(48.05f, 8.2f)}));
+			StartCoroutine(SendRequest<Helper.PlayerLocation, string>(sendPos, new Helper.PlayerLocation(){name = "Lars", id = 2, timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"), position = new Vector2(48.05f, 8.2f)},true));
+			StartCoroutine(SendRequest<Helper.PlayerLocation, string>(sendPos, new Helper.PlayerLocation(){name = "Lukas", id = 0, timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"), position = new Vector2(48.0501f, 8.202f)},true));
+
+			Helper.ServerRequest getPos = new Helper.ServerRequest() {request = Helper.ServerRequestType.RecievePositions};
+			StartCoroutine(SendRequest<Vector2,List<Helper.PlayerLocation>>(getPos, new Vector2(48.05f, 8.2f), true));
+
 
 			/*
 			Helper.PointOfAction poa = new Helper.PointOfAction() {name = "Furtwangen", attack = Helper.Attacks.None, position = new Vector2(GC.CurrentGpsPosition.Latitude, GC.CurrentGpsPosition.Longitude), power = 0};
@@ -100,7 +116,7 @@ using System.Collections;
 				EndPoint tmpRemote = (EndPoint)sender;
 	
 				int recv = server.ReceiveFrom(toRecieve, ref tmpRemote);
-				// Debug.Log("Answer: " + Encoding.ASCII.GetString(toRecieve, 0, recv));
+				Debug.Log("Answer: " + Encoding.ASCII.GetString(toRecieve, 0, recv));
 				if(answer != null){
 					answer(JsonUtility.FromJson<TAnswer>(Encoding.ASCII.GetString(toRecieve, 0, recv).Replace("\"X\"", "\"x\"").Replace("\"Y\"", "\"y\"")));
 				}

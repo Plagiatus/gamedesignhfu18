@@ -15,6 +15,7 @@ public static class Config {
         public static float TileSizeInRL = 150f;
         public static string MapCacheFolderName = "MapCache";
         public static string ServerIP = "141.28.105.206";
+        // public static string ServerIP = "127.0.0.1";
         public static int ServerPort = 9050;
 
 

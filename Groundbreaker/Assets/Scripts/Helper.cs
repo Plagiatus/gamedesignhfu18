@@ -55,6 +55,7 @@ public static class Helper {
         public float radius;
         public long id;
         public PointOfAction[] pointsOfAction;
+        public float status;
 
     }
 
@@ -98,6 +99,35 @@ public static class Helper {
 
     public class ServerRequest{
         public ServerRequestType request;
+    }
+
+    public class PlayerLocation{
+        public Vector2 position;
+        public long id;
+        public string name;
+        public string timestamp;
+    }
+
+    public class Player{
+        public int id;
+        public string name;
+        public string password;
+        public int level;
+        public int energy;
+        public int xp;
+        public Player(string _name, string _pw, int _id){
+            this.name = _name;
+            this.password = _pw;
+            this.id = _id;
+            this.level = 1;
+            this.energy = 10;
+            this.xp = 0;
+        }
+    }
+
+    public class LoginCredentials{
+        public string name;
+        public string password;
     }
 
 }
