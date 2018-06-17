@@ -13,7 +13,7 @@ public class CircleMaker : MonoBehaviour {
 	GameController GC;
 	void Start () {
 		line = gameObject.GetComponent<LineRenderer>();
-
+		line.enabled = false;
 		line.positionCount = segments + 1;
 		line.useWorldSpace = false;
 		line.loop = true;
@@ -31,6 +31,7 @@ public class CircleMaker : MonoBehaviour {
 	}
 
 	public void DrawCircle(){
+		line.enabled = true;
 		// Debug.Log((GC.circle.radius / Config.TileSizeInRL) * Config.TileSizeInGame);
 		float radius = (GC.circle.radius / Config.TileSizeInRL) * Config.TileSizeInGame;
 		float x, y, z;

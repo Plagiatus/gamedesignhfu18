@@ -12,8 +12,15 @@ using System.Collections;
 		private GameController GC;
 		private IDictionary playerPositions;
 
+		public static UDPClient Instance;
+
+		public delegate void ServerResponseLogin(Helper.Player p);
+		public static event ServerResponseLogin OnLoginResult;
+
 		void Start()
 		{
+
+			Instance = this;
 			try 
 			{
 				GC = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
@@ -23,23 +30,10 @@ using System.Collections;
 			}
 			GC.CurrentGpsPosition = Config.DebugGpsPosition;
 
-			// Helper.ServerRequest sendPos = new Helper.ServerRequest() { request = Helper.ServerRequestType.SendPosition };
-			// StartCoroutine(SendRequest<Vector2, string>(sendPos, new Vector2(UnityEngine.Random.value * 100, UnityEngine.Random.value * 100)));
-
-			// Helper.ServerRequest getPos = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecievePositions };
-			// StartCoroutine(SendRequest<string, Dictionary<string, Vector2>>(getPos, null, true, (returnValue) => {
-			// 	foreach(KeyValuePair<string, Vector2> player in returnValue){
-			// 		// Debug.Log("Player position: " + player.Value);
-			// 	}
-			// 	GC.playerPositions = returnValue;
-			// }));
+			// tryToLogin("Lukas", "1234567");
 
 			//TODO: MAKE SURE THAT THE GAME DOESN'T CRASH IF SERVER CONNECTION CAN'T BE ESTABLISHED!
-			//Helper.ServerRequest getCirc = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecieveCircle };
-			//StartCoroutine(SendRequest<Vector2, Helper.CircleOfAction>(getCirc, new Vector3(GC.CurrentGpsPosition.Latitude, GC.CurrentGpsPosition.Longitude), true, (returnValue) =>{
-			//	// Debug.Log(returnValue.pointsOfAction[0]);
-			//	GC.circle = returnValue;
-			//}));
+			
 
 			// Helper.ServerRequest login = new Helper.ServerRequest() {request = Helper.ServerRequestType.LogIn};
 			// StartCoroutine(SendRequest<Helper.LoginCredentials, Helper.Player>(login, new Helper.LoginCredentials(){name = "Lukas", password = "1234567"},true));
@@ -50,13 +44,13 @@ using System.Collections;
 			// Helper.ServerRequest updateplayer = new Helper.ServerRequest() {request = Helper.ServerRequestType.UpdatePlayer};
 			// StartCoroutine(SendRequest<Helper.Player, string>(updateplayer, new Helper.Player("Lars","1234567",2) {xp = 100},true));
 
-			Helper.ServerRequest sendPos = new Helper.ServerRequest() {request = Helper.ServerRequestType.SendPosition};
-			Debug.Log(JsonUtility.ToJson(new Helper.PlayerLocation(){name = "Lars", id = 2, timestamp = DateTime.Now.ToString(), position = new Vector2(48.05f, 8.2f)}));
-			StartCoroutine(SendRequest<Helper.PlayerLocation, string>(sendPos, new Helper.PlayerLocation(){name = "Lars", id = 2, timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"), position = new Vector2(48.05f, 8.2f)},true));
-			StartCoroutine(SendRequest<Helper.PlayerLocation, string>(sendPos, new Helper.PlayerLocation(){name = "Lukas", id = 0, timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"), position = new Vector2(48.0501f, 8.202f)},true));
+			// Helper.ServerRequest sendPos = new Helper.ServerRequest() {request = Helper.ServerRequestType.SendPosition};
+			// Debug.Log(JsonUtility.ToJson(new Helper.PlayerLocation(){name = "Lars", id = 2, timestamp = DateTime.Now.ToString(), position = new Vector2(48.05f, 8.2f)}));
+			// StartCoroutine(SendRequest<Helper.PlayerLocation, string>(sendPos, new Helper.PlayerLocation(){name = "Lars", id = 2, timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"), position = new Vector2(48.05f, 8.2f)},true));
+			// StartCoroutine(SendRequest<Helper.PlayerLocation, string>(sendPos, new Helper.PlayerLocation(){name = "Lukas", id = 0, timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"), position = new Vector2(48.0501f, 8.202f)},true));
 
-			Helper.ServerRequest getPos = new Helper.ServerRequest() {request = Helper.ServerRequestType.RecievePositions};
-			StartCoroutine(SendRequest<Vector2,List<Helper.PlayerLocation>>(getPos, new Vector2(48.05f, 8.2f), true));
+			// Helper.ServerRequest getPos = new Helper.ServerRequest() {request = Helper.ServerRequestType.RecievePositions};
+			// StartCoroutine(SendRequest<Vector2,List<Helper.PlayerLocation>>(getPos, new Vector2(48.05f, 8.2f), true));
 
 
 			/*
@@ -93,7 +87,66 @@ using System.Collections;
 			*/
 		}
 
-		public IEnumerator SendRequest<TRequest, TAnswer>(Helper.ServerRequest request, TRequest data, bool expectAnswer = false, System.Action<TAnswer> answer = null){
+		public void tryToLogin(string name, string password){
+			//subscribe to the OnLoginResult event to get the result of this function
+
+			Helper.ServerRequest tryLogin = new Helper.ServerRequest() { request = Helper.ServerRequestType.LogIn};
+			Helper.LoginCredentials login = new Helper.LoginCredentials() {name = name, password = password};
+			// System.Action<Helper.Player> ac = new System.Action<Helper.Player>(loginResult);
+			StartCoroutine(SendRequest<Helper.LoginCredentials, Helper.Player>(tryLogin, login, true, (returnValue) => {
+				if(OnLoginResult != null){
+					OnLoginResult(returnValue);
+				}
+			}));
+		}
+
+		// public void loginResult(Helper.Player p){
+		// 	if(p == null){
+		// 		Debug.Log("login failed");
+		// 	} else {
+		// 		Debug.Log("login success " + p.name);
+		// 	}
+		// }
+
+		public void startPeriodicRequests(){
+			Debug.Log("startPeriodicRequests");
+			StartCoroutine(PeriodicallySendPosition());
+			StartCoroutine(PeriodicallyGetPlayerPositions());
+			StartCoroutine(PeriodicallyCheckCircle());
+		}
+
+		IEnumerator PeriodicallySendPosition(){
+			while(true)
+			{
+				yield return new WaitForSeconds(10);
+				Helper.ServerRequest sendPos = new Helper.ServerRequest() { request = Helper.ServerRequestType.SendPosition };
+				StartCoroutine(SendRequest<Helper.PlayerLocation, string>(sendPos, new Helper.PlayerLocation(){position = new Vector2(GameController.Instance.CurrentGpsPosition.Latitude, GameController.Instance.CurrentGpsPosition.Longitude), id = GameController.Instance.player.id, name = GameController.Instance.player.name, timestamp = DateTime.UtcNow.ToString()}));
+			}
+		}
+
+		IEnumerator PeriodicallyCheckCircle(){
+			while(true)
+			{
+				Helper.ServerRequest getCirc = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecieveCircle };
+				StartCoroutine(SendRequest<Vector2, Helper.CircleOfAction>(getCirc, new Vector3(GameController.Instance.CurrentGpsPosition.Latitude, GameController.Instance.CurrentGpsPosition.Longitude), true, (returnValue) =>{
+					GameController.Instance.circle = returnValue;
+				}));
+				yield return new WaitForSeconds(60);
+			}
+		}
+
+		IEnumerator PeriodicallyGetPlayerPositions(){
+			while(true){
+				yield return new WaitForSeconds(10);
+				Helper.ServerRequest getPos = new Helper.ServerRequest() { request = Helper.ServerRequestType.RecievePositions };
+				StartCoroutine(SendRequest<Vector2, Helper.PlayerLocationWrapper>(getPos, new Vector2(GameController.Instance.CurrentGpsPosition.Latitude, GameController.Instance.CurrentGpsPosition.Longitude), true, (returnValue) => {
+					GC.playerPositions = returnValue.list;
+					GameObject.FindGameObjectWithTag("Map").GetComponent<MapObjects>().positionPlayers(returnValue.list);
+				}));
+			}
+		}
+
+		IEnumerator SendRequest<TRequest, TAnswer>(Helper.ServerRequest request, TRequest data, bool expectAnswer = false, System.Action<TAnswer> answer = null){
 			byte[] toSend = new byte[1024];
 			IPEndPoint ipep = new IPEndPoint(IPAddress.Parse(Config.ServerIP),Config.ServerPort);
 			Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -116,10 +169,15 @@ using System.Collections;
 				EndPoint tmpRemote = (EndPoint)sender;
 	
 				int recv = server.ReceiveFrom(toRecieve, ref tmpRemote);
-				Debug.Log("Answer: " + Encoding.ASCII.GetString(toRecieve, 0, recv));
+				// Debug.Log("Answer: " + Encoding.ASCII.GetString(toRecieve, 0, recv));
 				if(answer != null){
-					answer(JsonUtility.FromJson<TAnswer>(Encoding.ASCII.GetString(toRecieve, 0, recv).Replace("\"X\"", "\"x\"").Replace("\"Y\"", "\"y\"")));
+					if(Encoding.ASCII.GetString(toRecieve, 0, recv).Equals("null")){
+						answer(default(TAnswer));
+					} else {
+						answer(JsonUtility.FromJson<TAnswer>(Encoding.ASCII.GetString(toRecieve, 0, recv).Replace("\"X\"", "\"x\"").Replace("\"Y\"", "\"y\"")));
+					}
 				}
+				
 			}
 			server.Close();
 			yield return null;

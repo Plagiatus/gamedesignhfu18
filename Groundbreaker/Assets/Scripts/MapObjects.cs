@@ -4,28 +4,40 @@ using UnityEngine;
 
 public class MapObjects : MonoBehaviour {
 
-	GameObject circleInGame;
-	GameController GC;
-	private int previousTileX;
-	private int previousTileY;
+	public GameObject PlayerPrefab;
+	public GameObject MiddleTile;
+	public GameObject circleInGame;
+	private int previousTileX = 0;
+	private int previousTileY = 0;
 	void Start () {
-		try 
-		{
-			GC = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
-			circleInGame = GameObject.Find("Circle");
-		} catch
-		{
-			throw;
-		}
 	}
 	
 	void Update () {
-		if(GC.circle != null && (previousTileX != GC.CurrentGpsPosition.OsmTilePosition.x || previousTileY != GC.CurrentGpsPosition.OsmTilePosition.y))
+		if(GameController.Instance.circle != null && (previousTileX != GameController.Instance.CurrentGpsPosition.OsmTilePosition.x || previousTileY != GameController.Instance.CurrentGpsPosition.OsmTilePosition.y))
 		{
-			previousTileX = Mathf.FloorToInt(GC.CurrentGpsPosition.OsmTilePosition.x);
-			previousTileY = Mathf.FloorToInt(GC.CurrentGpsPosition.OsmTilePosition.y);
-			Vector3 circlePosition = Helper.LocationToGamePosition(GC.circle.center, GC);
+			previousTileX = Mathf.FloorToInt(GameController.Instance.CurrentGpsPosition.OsmTilePosition.x);
+			previousTileY = Mathf.FloorToInt(GameController.Instance.CurrentGpsPosition.OsmTilePosition.y);
+			Vector3 circlePosition = Helper.LocationToGamePosition(GameController.Instance.circle.center, GameController.Instance);
 			circleInGame.transform.localPosition = circlePosition;
-		}	
+			circleInGame.GetComponent<PointController>().createPoints();
+			// Debug.Log("Position Circle, "+ GameController.Instance.circle.center);
+		}
+	}
+
+	public void positionPlayers(List<Helper.PlayerLocation> playerLocations){
+		for (int i = 0; i < this.transform.childCount; i++){
+			if(this.transform.GetChild(i).tag == "otherPlayer"){
+				Destroy(this.transform.GetChild(i));
+			}
+		}
+
+		foreach(Helper.PlayerLocation p in playerLocations){
+			if(p.id != GameController.Instance.player.id){
+				GameObject newPlayer = GameObject.Instantiate(PlayerPrefab);
+				newPlayer.transform.position = Helper.LocationToGamePosition(p.position, GameController.Instance) + MiddleTile.transform.position;
+				newPlayer.tag = "otherPlayer";
+				newPlayer.GetComponent<PlayerBehaviour>().addName(p.name);
+			}
+		}
 	}
 }
