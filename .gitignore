@@ -36,4 +36,5 @@ sysinfo.txt
 *.unitypackage
 
 #External Server
+server/bin/Debug\.0
 server/output/

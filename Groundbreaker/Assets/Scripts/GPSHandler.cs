@@ -14,8 +14,11 @@ public class GPSHandler : MonoBehaviour {
 	void Start()
 	{
 		Instance = this;
-		DontDestroyOnLoad(gameObject);
 		StartCoroutine(StartLocationService());
+	}
+
+	void OnLevelWasLoaded(){
+		gpsText = GameObject.Find("GPSText").GetComponent<Text>();
 	}
 
 	IEnumerator StartLocationService()
@@ -23,7 +26,7 @@ public class GPSHandler : MonoBehaviour {
 		try 
 		{
 			GC = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
-			Debug.Log(GC);
+			// Debug.Log(GC);
 		} catch (Exception)
 		{
 			throw;
@@ -94,8 +97,11 @@ public class GPSHandler : MonoBehaviour {
 
 		GC.CurrentGpsPosition.OsmOnTilePosition = new Vector2(tilePos.x - GC.CurrentGpsPosition.OsmTilePosition.x, tilePos.y - GC.CurrentGpsPosition.OsmTilePosition.y);
 
-		Debug.Log("Tile: " + GC.CurrentGpsPosition.OsmTilePosition.ToString() + "; PositionOnTile: " + GC.CurrentGpsPosition.OsmOnTilePosition.ToString());
-		gpsText.text = GC.CurrentGpsPosition.Latitude.ToString() + ", " + GC.CurrentGpsPosition.Longitude.ToString();
+		// Debug.Log("Tile: " + GC.CurrentGpsPosition.OsmTilePosition.ToString() + "; PositionOnTile: " + GC.CurrentGpsPosition.OsmOnTilePosition.ToString());
+		// gpsText.text = GC.CurrentGpsPosition.Latitude.ToString() + ", " + GC.CurrentGpsPosition.Longitude.ToString();
+		if(gpsText != null){
+			gpsText.text = GameController.Instance.CurrentGpsPosition.HeadingDirection.ToString();
+		}
 	}
 
 }
