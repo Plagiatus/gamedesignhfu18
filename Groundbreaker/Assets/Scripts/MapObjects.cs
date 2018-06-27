@@ -27,7 +27,7 @@ public class MapObjects : MonoBehaviour {
 	public void positionPlayers(List<Helper.PlayerLocation> playerLocations){
 		for (int i = 0; i < this.transform.childCount; i++){
 			if(this.transform.GetChild(i).tag == "otherPlayer"){
-				Destroy(this.transform.GetChild(i));
+				Destroy(this.transform.GetChild(i).gameObject);
 			}
 		}
 
@@ -37,6 +37,7 @@ public class MapObjects : MonoBehaviour {
 				newPlayer.transform.position = Helper.LocationToGamePosition(p.position, GameController.Instance) + MiddleTile.transform.position;
 				newPlayer.tag = "otherPlayer";
 				newPlayer.GetComponent<PlayerBehaviour>().addName(p.name);
+				newPlayer.transform.SetParent(this.transform);
 			}
 		}
 	}
