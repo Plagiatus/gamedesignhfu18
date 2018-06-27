@@ -1,19 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ShakeHandler : MonoBehaviour {
 
 	// Use this for initialization
-	void Start () {
-		
-	}
 
+    
     public float avrgTime = 0.5f;
     public float peakLevel = 1.7f;
     public float endCountTime = 0.6f;
     public int shakeDir;
     public int shakeCount;
+
+    public float shakeAmount;
+    public float shakeLoss;
+    public Image shakeBar;
+    public GameObject shakeObject;
+    bool upShake = false;
 
     Vector3 avrgAcc = Vector3.zero;
     int countPos;
@@ -22,6 +27,8 @@ public class ShakeHandler : MonoBehaviour {
     int firstPeak;
     bool counting;
     float timer;
+    
+
 
     bool ShakeDetector()
     {
@@ -81,24 +88,89 @@ public class ShakeHandler : MonoBehaviour {
         return false;
     }
 
+    void Start()
+    {
+        if(shakeBar != null)
+        {
+            shakeBar.fillAmount = 0;
+        }
+    }
+
     // Update is called once per frame
     void Update () {
-    if (ShakeDetector())
-    { // call ShakeDetector every Update!
-      // the device was shaken up and the count is in shakeCount
-      // the direction of the first shake is in shakeDir (1 or -1)
-            
-    }
-    // the variable counting tells when the device is being shaken:
-    if (counting)
-    {
-            this.transform.position += Vector3.up * 0.01f;
-            
-    }
+    if(shakeBar != null)
+        {
+            if (ShakeDetector())
+            { // call ShakeDetector every Update!
+              // the device was shaken up and the count is in shakeCount
+              // the direction of the first shake is in shakeDir (1 or -1)
+
+            }
+            // the variable counting tells when the device is being shaken:
+            if (counting)
+            {
+                if(shakeBar.fillAmount < 1)
+                {
+                    shakeBar.fillAmount += shakeAmount;
+                    if (upShake == false)
+                    {
+                        shakeObject.transform.position = new Vector3(shakeObject.transform.position.x, shakeObject.transform.position.y + 20, shakeObject.transform.position.z);
+                        upShake = true;
+                    }
+                    else if (upShake == true)
+                    {
+                        shakeObject.transform.position = new Vector3(shakeObject.transform.position.x, shakeObject.transform.position.y - 20, shakeObject.transform.position.z);
+                        upShake = false;
+                    }
+                    if (shakeBar.fillAmount >= 1)
+                    {
+                        Debug.Log("Winstate!!");
+                        shakeBar.color = new Color32(0, 255, 0, 255);
+                    }
+                }
+                else
+                {
+                    shakeBar.fillAmount = 1;
+                }
+               
+            }
+           
+            else
+            {
+                if(shakeBar.fillAmount > 0)
+                {
+                    shakeBar.fillAmount -= shakeLoss;
+
+                }
+                else
+                {
+                    shakeBar.fillAmount = 0;
+                }
+                
+                Debug.Log("Not Shaking");
+               
+            }
+        }
     else
     {
-            Debug.Log("Not Shaking");
-            this.transform.position += Vector3.up * 0.0f;
-    }
+            if (ShakeDetector())
+            { // call ShakeDetector every Update!
+              // the device was shaken up and the count is in shakeCount
+              // the direction of the first shake is in shakeDir (1 or -1)
+
+            }
+            // the variable counting tells when the device is being shaken:
+            if (counting)
+            {
+                this.transform.position += Vector3.up * 0.01f;
+
+            }
+            else
+            {
+                Debug.Log("Not Shaking");
+                this.transform.position += Vector3.up * 0.0f;
+            }
+        }
+    
 }
 }
