@@ -24,7 +24,7 @@ public class Micro : MonoBehaviour
     void Update()
     {
         loudness = GetAveragedVolume() * sensitivity;
-        if (loudness > 6)
+        if (loudness > 10)
         {
             _cube.SetActive(true);
         }
