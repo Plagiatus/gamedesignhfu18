@@ -150,3 +150,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06b4407dc03b7fc46a297e83f4beda40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  point:
+    id: 0
+    circleID: 0
+    name: 
+    position: {x: 0, y: 0}
+    attack: 0
+    power: 0
+    ownerID: 0
+    attackers: 
+  Earthquake: {fileID: 100084, guid: 4770200d9dc2e5847a69967ac3c6d845, type: 3}

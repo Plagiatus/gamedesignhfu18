@@ -13,13 +13,15 @@ public class GPSHandler : MonoBehaviour {
 
 	void Start()
 	{
-		Instance = this;
-		StartCoroutine(StartLocationService());
+		if(Instance == null) {
+			Instance = this;
+			StartCoroutine(StartLocationService());
+		}
 	}
 
-	void OnLevelWasLoaded(){
-		gpsText = GameObject.Find("GPSText").GetComponent<Text>();
-	}
+	// void OnLevelWasLoaded(){
+		// gpsText = GameObject.Find("GPSText").GetComponent<Text>();
+	// }
 
 	IEnumerator StartLocationService()
 	{

@@ -18,6 +18,9 @@ public static class Config {
         // public static string ServerIP = "127.0.0.1";
         public static int ServerPort = 9050;
 
+        public static bool minigameSuccess = false;
+        public static Helper.Attacks newAttack = Helper.Attacks.None;
+        public static Helper.PointOfAction attackedPoint = null;
 
 	static Config()
 	{

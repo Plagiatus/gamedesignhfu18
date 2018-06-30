@@ -13,10 +13,12 @@ public class GameController : MonoBehaviour {
 
 
 	void Start () {
-		DontDestroyOnLoad(gameObject);
-		CurrentGpsPosition = new Helper.LocationData();
-		Instance = this;
-		circle = null;
+		if(Instance == null){
+			DontDestroyOnLoad(gameObject);
+			CurrentGpsPosition = new Helper.LocationData();
+			Instance = this;
+			circle = null;
+		}
 		// player = new Helper.Player("Lukas", "1234567", 1);
 	}
 

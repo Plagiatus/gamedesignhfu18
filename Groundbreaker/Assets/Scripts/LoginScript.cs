@@ -37,7 +37,7 @@ public class LoginScript : MonoBehaviour {
 	}
 
 	IEnumerator loadMainGame(){
-		yield return new WaitForSeconds(5);
+		yield return new WaitForSeconds(1);
 		UDPClient.Instance.startPeriodicRequests();
 		SceneManager.LoadScene("MainGame");
 	}
