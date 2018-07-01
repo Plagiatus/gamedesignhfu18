@@ -16,6 +16,7 @@ using System.Collections;
 
 		public delegate void ServerResponseLogin(Helper.Player p);
 		public static event ServerResponseLogin OnLoginResult;
+		public static event ServerResponseLogin OnRegisterResult;
 
 		void Start()
 		{
@@ -87,7 +88,18 @@ using System.Collections;
 			*/
 		}
 
-		public void tryToLogin(string name, string password){
+    public void tryToRegister(string name, string password)
+    {
+        Helper.ServerRequest tryRegister = new Helper.ServerRequest() {request = Helper.ServerRequestType.NewPlayer};
+		Helper.LoginCredentials login = new Helper.LoginCredentials() {name = name, password = password};
+		StartCoroutine(SendRequest<Helper.LoginCredentials, Helper.Player>(tryRegister, login, true, (returnValue) => {
+				if(OnLoginResult != null){
+					OnRegisterResult(returnValue);
+				}
+			}));
+    }
+
+    public void tryToLogin(string name, string password){
 			//subscribe to the OnLoginResult event to get the result of this function
 
 			Helper.ServerRequest tryLogin = new Helper.ServerRequest() { request = Helper.ServerRequestType.LogIn};
@@ -146,7 +158,7 @@ using System.Collections;
 			}
 		}
 
-		IEnumerator SendRequest<TRequest, TAnswer>(Helper.ServerRequest request, TRequest data, bool expectAnswer = false, System.Action<TAnswer> answer = null){
+		public IEnumerator SendRequest<TRequest, TAnswer>(Helper.ServerRequest request, TRequest data, bool expectAnswer = false, System.Action<TAnswer> answer = null){
 			byte[] toSend = new byte[1024];
 			IPEndPoint ipep = new IPEndPoint(IPAddress.Parse(Config.ServerIP),Config.ServerPort);
 			Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);

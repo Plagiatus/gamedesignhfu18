@@ -14,8 +14,9 @@
                     "X":48.05149, 
                     "Y":8.207626 
                 }, 
-                "attack":0, 
-                "power":0 
+                "attack":1, 
+                "power":20,
+				"id":0
             }, 
             { 
                 "name":"I Bau", 
@@ -23,8 +24,9 @@
                     "X":48.04994, 
                     "Y":8.210778 
                 }, 
-                "attack":1, 
-                "power":20 
+                "attack":0, 
+                "power":0,
+				"id":1
             }, 
             { 
                 "name":"Engel", 
@@ -32,8 +34,9 @@
                     "X":48.04957, 
                     "Y":8.206738 
                 }, 
-                "attack":2, 
-                "power":50 
+                "attack":6, 
+                "power":50,
+				"id":2
             } 
         ], 
 		"status": 50.0
@@ -54,7 +57,8 @@
                     "Y":8.303296 
                 }, 
                 "attack":0, 
-                "power":0 
+                "power":0,
+				"id":0
             }, 
             { 
                 "name":"Schwimmbad", 
@@ -63,7 +67,8 @@
                     "Y":8.298734 
                 }, 
                 "attack":1, 
-                "power":20 
+                "power":20,
+				"id":1
             }, 
             { 
                 "name":"Sparkasse", 
@@ -72,7 +77,8 @@
                     "Y":8.306286 
                 }, 
                 "attack":2, 
-                "power":50 
+                "power":50,
+				"id":2
             } 
         ],
 		"status":50.0

@@ -33,7 +33,7 @@ public class CanvasBehaviour : MonoBehaviour {
 	}
 
 	public void startGame(){
-		attack = Helper.Attacks.Earthquake;
+		attack = Helper.Attacks.Rain;
 		if(blueOverlay.activeSelf){
 			bluePopupVisibility(true);
 		} else {
